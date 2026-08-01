@@ -1,0 +1,269 @@
+:root {
+  font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
+  color: #1a1a1a;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  overflow: hidden;
+}
+
+.app-root {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+/* --- Pet --- */
+
+.pet {
+  position: relative;
+  width: 96px;
+  height: 96px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.pet-body {
+  position: absolute;
+  bottom: 0;
+  left: 8px;
+  width: 80px;
+  height: 68px;
+  border-radius: 50% 50% 46% 46%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.25);
+  transition: background-color 0.6s ease;
+}
+
+.pet-face {
+  font-family: monospace;
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 2px;
+  color: #22232a;
+}
+
+.pet-ear {
+  position: absolute;
+  top: 6px;
+  width: 22px;
+  height: 26px;
+  border-radius: 50% 50% 0 0;
+  transition: background-color 0.6s ease;
+}
+
+.pet-ear-left {
+  left: 10px;
+  transform: rotate(-18deg);
+}
+
+.pet-ear-right {
+  right: 10px;
+  transform: rotate(18deg);
+}
+
+.pet-tail {
+  position: absolute;
+  bottom: 18px;
+  right: -2px;
+  width: 26px;
+  height: 8px;
+  border-radius: 6px;
+  transform-origin: left center;
+  animation: wag 1.8s ease-in-out infinite;
+  transition: background-color 0.6s ease;
+}
+
+@keyframes wag {
+  0%,
+  100% {
+    transform: rotate(10deg);
+  }
+  50% {
+    transform: rotate(-14deg);
+  }
+}
+
+.pet-happy .pet-body,
+.pet-happy .pet-ear,
+.pet-happy .pet-tail {
+  background-color: #7fd88f;
+}
+
+.pet-alert .pet-body,
+.pet-alert .pet-ear,
+.pet-alert .pet-tail {
+  background-color: #f2c94c;
+}
+
+.pet-tired .pet-body,
+.pet-tired .pet-ear,
+.pet-tired .pet-tail {
+  background-color: #eb6a5c;
+}
+
+.pet-tired .pet-tail {
+  animation-duration: 3.6s;
+}
+
+.pet-unavailable .pet-body,
+.pet-unavailable .pet-ear,
+.pet-unavailable .pet-tail {
+  background-color: #9aa0a6;
+}
+
+.pet-unavailable .pet-tail {
+  animation: none;
+}
+
+/* --- Panels --- */
+
+.stats-panel,
+.settings-panel {
+  position: absolute;
+  bottom: 110px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 240px;
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+  background: rgba(255, 255, 255, 0.96);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  padding: 10px 12px 12px;
+  font-size: 13px;
+}
+
+.stats-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.stats-header-actions button,
+.stats-header button {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 14px;
+  margin-left: 6px;
+  color: #444;
+}
+
+.stats-section {
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #eee;
+}
+
+.stats-section:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.stats-row {
+  display: flex;
+  justify-content: space-between;
+}
+
+.stats-subrow {
+  color: #888;
+  font-size: 11px;
+  margin-bottom: 4px;
+}
+
+.stats-error {
+  color: #c0392b;
+  font-size: 12px;
+}
+
+.stats-raw {
+  font-size: 10px;
+  max-height: 100px;
+  overflow: auto;
+  background: #f6f6f6;
+  padding: 4px;
+  border-radius: 6px;
+}
+
+.settings-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 10px;
+  font-size: 12px;
+  color: #333;
+}
+
+.settings-field input {
+  padding: 5px 6px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 13px;
+}
+
+.settings-save {
+  width: 100%;
+  padding: 6px;
+  border-radius: 6px;
+  border: none;
+  background: #396cd8;
+  color: white;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color: #f0f0f0;
+  }
+
+  .pet-face {
+    color: #10131a;
+  }
+
+  .stats-panel,
+  .settings-panel {
+    background: rgba(30, 30, 34, 0.96);
+    color: #f0f0f0;
+  }
+
+  .stats-section {
+    border-bottom-color: #3a3a3f;
+  }
+
+  .stats-subrow {
+    color: #aaa;
+  }
+
+  .stats-raw {
+    background: #111114;
+  }
+
+  .settings-field {
+    color: #ddd;
+  }
+
+  .settings-field input {
+    background: #1c1c20;
+    border-color: #444;
+    color: #f0f0f0;
+  }
+
+  .stats-header-actions button,
+  .stats-header button {
+    color: #ccc;
+  }
+}
