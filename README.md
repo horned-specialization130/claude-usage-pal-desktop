@@ -1,12 +1,22 @@
 # 🐾 AI Pet Usage Desktop App
 
-A desktop pet application built with **Tauri**, **React**, **TypeScript**, and **Vite**.
+A lightweight desktop pet application that floats on your screen to monitor your Claude AI API usage in real-time. Built with **Tauri**, **React**, **TypeScript**, and **Vite**.
 
-<p center>
-  <img src="docs/assets/screenshot.jpg" alt="AI Pet Usage App Preview" width="100%" />
+<p align="center">
+  <img src="docs/assets/ss2.png" alt="Claude Usage Details" width="80%" />
 </p>
 
 ---
+
+## 📸 Screenshots
+
+| **Desktop Pet Widget** | **Settings & Customization** |
+| :---: | :---: |
+| <img src="docs/assets/ss1.png" width="400" alt="Pet Widget" /> | <img src="docs/assets/ss3.png" width="400" alt="Settings Panel" /> |
+| Compact floating pet with quick usage badge | Adjustable pet size, Shy mode toggle, & polling intervals |
+
+---
+
 
 
 ## 🚀 Installation
