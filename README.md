@@ -49,3 +49,10 @@ npm run tauri dev
 npm run tauri build
 ```
 
+---
+
+## 📜 Credits & Acknowledgments
+
+- **Graphics & Assets**: Created by **[Kenney](https://kenney.nl/)** ([Creative Commons CC0 1.0 Universal / Public Domain](https://creativecommons.org/publicdomain/zero/1.0/)).
+
+
