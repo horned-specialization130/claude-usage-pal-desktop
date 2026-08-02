@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+# Raw downloaded asset packs (only the specific files we use are copied into src/assets)
+external-source/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
