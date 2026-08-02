@@ -39,8 +39,13 @@ export function Settings({ onClose, onPetSizeChange }: SettingsProps) {
         <button onClick={onClose}>×</button>
       </div>
 
-      <label className="settings-field">
-        Pet size ({settings.pet_size_px}px)
+      <div className="settings-group">
+        <div className="settings-group-title">Pet</div>
+
+        <div className="settings-row">
+          <span>Size</span>
+          <span className="settings-row-value">{settings.pet_size_px}px</span>
+        </div>
         <input
           type="range"
           min={20}
@@ -53,40 +58,38 @@ export function Settings({ onClose, onPetSizeChange }: SettingsProps) {
             onPetSizeChange(size);
           }}
         />
-      </label>
 
-      <label className="settings-field settings-field-checkbox">
-        <input
-          type="checkbox"
-          checked={settings.shy_mode_enabled}
-          onChange={(e) => setSettings((s) => ({ ...s, shy_mode_enabled: e.target.checked }))}
-        />
-        Shy mode (dodge the cursor unless Shift is held)
-      </label>
+        <label className="toggle-row">
+          <div className="toggle-row-text">
+            <span className="toggle-row-title">Shy mode</span>
+            <span className="settings-hint">Dodges the cursor unless Shift is held</span>
+          </div>
+          <span className="toggle-switch">
+            <input
+              type="checkbox"
+              checked={settings.shy_mode_enabled}
+              onChange={(e) => setSettings((s) => ({ ...s, shy_mode_enabled: e.target.checked }))}
+            />
+            <span className="toggle-switch-track" />
+          </span>
+        </label>
+      </div>
 
-      <label className="settings-field">
-        Poll interval (seconds)
-        <input
-          type="number"
-          min={15}
-          value={settings.poll_interval_secs}
-          onChange={(e) =>
-            setSettings((s) => ({ ...s, poll_interval_secs: Number(e.target.value) || 60 }))
-          }
-        />
-      </label>
+      <div className="settings-group">
+        <div className="settings-group-title">Data</div>
 
-      <label className="settings-field">
-        Admin API key (optional, org cost data)
-        <input
-          type="password"
-          placeholder="sk-ant-admin..."
-          value={settings.admin_api_key ?? ""}
-          onChange={(e) =>
-            setSettings((s) => ({ ...s, admin_api_key: e.target.value || null }))
-          }
-        />
-      </label>
+        <label className="settings-field">
+          Poll interval (seconds)
+          <input
+            type="number"
+            min={15}
+            value={settings.poll_interval_secs}
+            onChange={(e) =>
+              setSettings((s) => ({ ...s, poll_interval_secs: Number(e.target.value) || 60 }))
+            }
+          />
+        </label>
+      </div>
 
       <button className="settings-save" onClick={save}>
         {saved ? "Saved" : "Save"}
