@@ -14,11 +14,18 @@ type View = "closed" | "stats" | "settings";
 const CLOSED_WINDOW_MARGIN = 40;
 const OPEN_WINDOW_WIDTH = 260;
 const OPEN_WINDOW_HEIGHT = 460;
+const HOVER_WINDOW_WIDTH = 190;
+const HOVER_WINDOW_EXTRA_HEIGHT = 90;
+
+function formatPct(value: number | null | undefined): string {
+  return value === null || value === undefined ? "—" : `${Math.round(value)}%`;
+}
 
 function App() {
   const usage = useUsage();
   const [view, setView] = useState<View>("closed");
   const [petSize, setPetSize] = useState(40);
+  const [hovering, setHovering] = useState(false);
 
   useEffect(() => {
     invoke<AppSettings>("get_settings").then((s) => setPetSize(s.pet_size_px));
@@ -27,11 +34,17 @@ function App() {
   useEffect(() => {
     // The window is transparent but still intercepts clicks over its whole
     // rectangle, so keep it sized to only what's actually visible right now.
-    const width = view === "closed" ? petSize + CLOSED_WINDOW_MARGIN : OPEN_WINDOW_WIDTH;
-    const height = view === "closed" ? petSize + CLOSED_WINDOW_MARGIN : OPEN_WINDOW_HEIGHT;
+    const width =
+      view !== "closed" ? OPEN_WINDOW_WIDTH : hovering ? HOVER_WINDOW_WIDTH : petSize + CLOSED_WINDOW_MARGIN;
+    const height =
+      view !== "closed"
+        ? OPEN_WINDOW_HEIGHT
+        : hovering
+          ? petSize + HOVER_WINDOW_EXTRA_HEIGHT
+          : petSize + CLOSED_WINDOW_MARGIN;
     invoke("resize_pet_window", { width, height }).catch(() => {});
     invoke("set_panel_open", { open: view !== "closed" }).catch(() => {});
-  }, [view, petSize]);
+  }, [view, petSize, hovering]);
 
   useEffect(() => {
     let unlisten: (() => void) | undefined;
@@ -71,13 +84,35 @@ function App() {
     window.addEventListener("mouseup", onUp);
   }
 
+  const showTooltip = view === "closed" && hovering;
+
   return (
     <div className="app-root" style={{ ["--pet-size" as string]: `${petSize}px` }}>
       <Pet
         mood={usage.mood}
         onClick={() => setView((v) => (v === "stats" ? "closed" : "stats"))}
         onMouseDown={onPetMouseDown}
+        onMouseEnter={() => setHovering(true)}
+        onMouseLeave={() => setHovering(false)}
       />
+      {showTooltip && (
+        <div className="pet-tooltip">
+          {usage.usage ? (
+            <>
+              <div className="pet-tooltip-row">
+                <span>5h</span>
+                <span>{formatPct(usage.usage.five_hour?.utilization)}</span>
+              </div>
+              <div className="pet-tooltip-row">
+                <span>Weekly</span>
+                <span>{formatPct(usage.usage.seven_day?.utilization)}</span>
+              </div>
+            </>
+          ) : (
+            <div className="pet-tooltip-row pet-tooltip-error">Usage unavailable</div>
+          )}
+        </div>
+      )}
       {view === "stats" && (
         <StatsPanel
           data={usage}

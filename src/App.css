@@ -125,6 +125,39 @@ body {
   background-color: #9aa0a6;
 }
 
+/* --- Hover tooltip --- */
+
+.pet-tooltip {
+  position: absolute;
+  bottom: calc(var(--pet-size) + 18px);
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 110px;
+  background: rgba(255, 255, 255, 0.96);
+  border-radius: 8px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+  padding: 6px 10px;
+  font-size: 12px;
+  pointer-events: none;
+}
+
+.pet-tooltip-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-weight: 600;
+  color: #333;
+}
+
+.pet-tooltip-row + .pet-tooltip-row {
+  margin-top: 2px;
+}
+
+.pet-tooltip-error {
+  color: #c0392b;
+  font-weight: 500;
+}
+
 /* --- Panels --- */
 
 .stats-panel,
@@ -487,8 +520,13 @@ body {
   }
 
   .stats-panel,
-  .settings-panel {
+  .settings-panel,
+  .pet-tooltip {
     background: rgba(30, 30, 34, 0.96);
+    color: #f0f0f0;
+  }
+
+  .pet-tooltip-row {
     color: #f0f0f0;
   }
 
