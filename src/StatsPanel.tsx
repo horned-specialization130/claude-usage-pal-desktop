@@ -48,6 +48,15 @@ function UsageMeter({ label, pct, resetsAt, size }: UsageMeterProps) {
   );
 }
 
+function DetailStat({ label, value }: { label: string; value: string | number }) {
+  return (
+    <div className="detail-stat">
+      <span className="detail-stat-label">{label}</span>
+      <span className="detail-stat-value">{value}</span>
+    </div>
+  );
+}
+
 interface StatsPanelProps {
   data: UsageUpdatedPayload;
   onClose: () => void;
@@ -117,26 +126,17 @@ export function StatsPanel({ data, onClose, onOpenSettings }: StatsPanelProps) {
 
       {detailsOpen && (
         <>
-          <div className="stats-section">
-            <div className="stats-row">
-              <span>Today's messages</span>
-              <span>{local.message_count}</span>
-            </div>
-            <div className="stats-row">
-              <span>Today's tokens</span>
-              <span>{(local.input_tokens + local.output_tokens).toLocaleString()}</span>
-            </div>
-            <div className="stats-row">
-              <span>Sessions today</span>
-              <span>{local.session_count_today}</span>
-            </div>
+          <div className="detail-stats">
+            <DetailStat label="Messages today" value={local.message_count} />
+            <DetailStat
+              label="Tokens today"
+              value={(local.input_tokens + local.output_tokens).toLocaleString()}
+            />
           </div>
 
           {hasAdminKey && (
-            <div className="stats-section">
-              <div className="stats-row">
-                <span>Org cost (Admin API)</span>
-              </div>
+            <div className="detail-stats">
+              <div className="detail-stat-label detail-stats-title">Org cost (Admin API)</div>
               {adminError && <div className="stats-error">{adminError}</div>}
               {!adminError && adminSummary ? (
                 <pre className="stats-raw">{JSON.stringify(adminSummary, null, 2).slice(0, 400)}</pre>

@@ -136,26 +136,50 @@ body {
   color: #444;
 }
 
-.stats-section {
-  margin-bottom: 10px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid #eee;
-}
-
-.stats-section:last-child {
-  border-bottom: none;
-  margin-bottom: 0;
-}
-
-.stats-row {
-  display: flex;
-  justify-content: space-between;
-}
-
 .stats-subrow {
   color: #888;
   font-size: 11px;
   margin-bottom: 4px;
+}
+
+/* --- Detail stats (collapsed "Show details" section) --- */
+
+.detail-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  background: rgba(0, 0, 0, 0.035);
+  border-radius: 8px;
+  padding: 6px 10px;
+  margin-bottom: 8px;
+}
+
+.detail-stats:last-child {
+  margin-bottom: 0;
+}
+
+.detail-stats-title {
+  padding: 2px 0 4px;
+  font-weight: 600;
+}
+
+.detail-stat {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 3px 0;
+}
+
+.detail-stat-label {
+  font-size: 11px;
+  color: #888;
+}
+
+.detail-stat-value {
+  font-size: 13px;
+  font-weight: 700;
+  color: #333;
+  font-variant-numeric: tabular-nums;
 }
 
 /* --- Usage meters --- */
@@ -347,12 +371,20 @@ body {
     color: #f0f0f0;
   }
 
-  .stats-section {
-    border-bottom-color: #3a3a3f;
-  }
-
   .stats-subrow {
     color: #aaa;
+  }
+
+  .detail-stats {
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  .detail-stat-label {
+    color: #999;
+  }
+
+  .detail-stat-value {
+    color: #eee;
   }
 
   .usage-meter-label {
