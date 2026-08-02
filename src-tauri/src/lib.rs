@@ -63,6 +63,11 @@ fn set_panel_open(state: State<AppState>, open: bool) {
     state.set_panel_open(open);
 }
 
+#[tauri::command]
+fn get_shift_held(state: State<AppState>) -> bool {
+    state.is_shift_held()
+}
+
 /// Resizes the pet window to match only the currently visible content
 /// (small when idle, bigger while the stats/settings panel is open),
 /// keeping the window's bottom-center point fixed so the pet doesn't
@@ -140,6 +145,7 @@ pub fn run() {
             save_settings_cmd,
             save_window_position,
             set_panel_open,
+            get_shift_held,
             resize_pet_window,
             get_admin_usage
         ])

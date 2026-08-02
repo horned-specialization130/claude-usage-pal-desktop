@@ -26,25 +26,52 @@ function App() {
   const [view, setView] = useState<View>("closed");
   const [petSize, setPetSize] = useState(40);
   const [hovering, setHovering] = useState(false);
+  const [shiftHeld, setShiftHeld] = useState(false);
 
   useEffect(() => {
     invoke<AppSettings>("get_settings").then((s) => setPetSize(s.pet_size_px));
   }, []);
 
   useEffect(() => {
+    // The window rarely has OS keyboard focus, so Shift state can't be read
+    // from DOM key events — poll the backend's global key-state instead,
+    // only while it's actually relevant (hovering the pet).
+    if (!hovering) {
+      setShiftHeld(false);
+      return;
+    }
+    let cancelled = false;
+    const poll = () => {
+      invoke<boolean>("get_shift_held")
+        .then((held) => {
+          if (!cancelled) setShiftHeld(held);
+        })
+        .catch(() => {});
+    };
+    poll();
+    const id = setInterval(poll, 100);
+    return () => {
+      cancelled = true;
+      clearInterval(id);
+    };
+  }, [hovering]);
+
+  const showTooltip = view === "closed" && hovering && shiftHeld;
+
+  useEffect(() => {
     // The window is transparent but still intercepts clicks over its whole
     // rectangle, so keep it sized to only what's actually visible right now.
     const width =
-      view !== "closed" ? OPEN_WINDOW_WIDTH : hovering ? HOVER_WINDOW_WIDTH : petSize + CLOSED_WINDOW_MARGIN;
+      view !== "closed" ? OPEN_WINDOW_WIDTH : showTooltip ? HOVER_WINDOW_WIDTH : petSize + CLOSED_WINDOW_MARGIN;
     const height =
       view !== "closed"
         ? OPEN_WINDOW_HEIGHT
-        : hovering
+        : showTooltip
           ? petSize + HOVER_WINDOW_EXTRA_HEIGHT
           : petSize + CLOSED_WINDOW_MARGIN;
     invoke("resize_pet_window", { width, height }).catch(() => {});
     invoke("set_panel_open", { open: view !== "closed" }).catch(() => {});
-  }, [view, petSize, hovering]);
+  }, [view, petSize, showTooltip]);
 
   useEffect(() => {
     let unlisten: (() => void) | undefined;
@@ -83,8 +110,6 @@ function App() {
     window.addEventListener("mousemove", onMove);
     window.addEventListener("mouseup", onUp);
   }
-
-  const showTooltip = view === "closed" && hovering;
 
   return (
     <div className="app-root" style={{ ["--pet-size" as string]: `${petSize}px` }}>

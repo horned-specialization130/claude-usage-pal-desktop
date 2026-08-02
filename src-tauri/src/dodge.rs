@@ -24,6 +24,15 @@ pub async fn run(app_handle: tauri::AppHandle) {
         tokio::time::sleep(Duration::from_millis(TICK_MS)).await;
 
         let state = app_handle.state::<AppState>();
+
+        // Published unconditionally (not just when shy mode/dodging is active)
+        // so the frontend can gate Shift-only UI, like the hover tooltip, via
+        // the get_shift_held command — it can't observe the key itself since
+        // this window rarely has OS keyboard focus.
+        let keys = device_state.get_keys();
+        let shift_held = keys.contains(&Keycode::LShift) || keys.contains(&Keycode::RShift);
+        state.set_shift_held(shift_held);
+
         if state.is_panel_open() {
             continue;
         }
@@ -34,9 +43,7 @@ pub async fn run(app_handle: tauri::AppHandle) {
         if last_dodge.elapsed() < Duration::from_millis(COOLDOWN_MS) {
             continue;
         }
-
-        let keys = device_state.get_keys();
-        if keys.contains(&Keycode::LShift) || keys.contains(&Keycode::RShift) {
+        if shift_held {
             continue;
         }
 

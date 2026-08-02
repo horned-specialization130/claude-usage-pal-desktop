@@ -8,6 +8,7 @@ use std::sync::Mutex;
 pub struct AppState {
     settings: Mutex<Settings>,
     panel_open: AtomicBool,
+    shift_held: AtomicBool,
 }
 
 impl AppState {
@@ -15,6 +16,7 @@ impl AppState {
         Self {
             settings: Mutex::new(settings::load_settings(app)),
             panel_open: AtomicBool::new(false),
+            shift_held: AtomicBool::new(false),
         }
     }
 
@@ -34,5 +36,13 @@ impl AppState {
 
     pub fn set_panel_open(&self, open: bool) {
         self.panel_open.store(open, Ordering::Relaxed);
+    }
+
+    pub fn is_shift_held(&self) -> bool {
+        self.shift_held.load(Ordering::Relaxed)
+    }
+
+    pub fn set_shift_held(&self, held: bool) {
+        self.shift_held.store(held, Ordering::Relaxed);
     }
 }
