@@ -17,9 +17,35 @@ function formatResetsAt(resetsAt: string | null): string {
   return `${days}d ${hours % 24}h`;
 }
 
-function formatPercent(value: number | null | undefined): string {
-  if (value === null || value === undefined) return "—";
-  return `${Math.round(value)}%`;
+function levelFor(pct: number | null | undefined): "ok" | "warn" | "hot" | "unknown" {
+  if (pct === null || pct === undefined) return "unknown";
+  if (pct >= 80) return "hot";
+  if (pct >= 50) return "warn";
+  return "ok";
+}
+
+interface UsageMeterProps {
+  label: string;
+  pct: number | null | undefined;
+  resetsAt: string | null | undefined;
+  size: "lg" | "sm";
+}
+
+function UsageMeter({ label, pct, resetsAt, size }: UsageMeterProps) {
+  const level = levelFor(pct);
+  const width = pct === null || pct === undefined ? 0 : Math.min(100, Math.max(0, pct));
+  return (
+    <div className={`usage-meter usage-meter-${size} level-${level}`}>
+      <div className="usage-meter-top">
+        <span className="usage-meter-label">{label}</span>
+        <span className="usage-meter-pct">{pct === null || pct === undefined ? "—" : `${Math.round(pct)}%`}</span>
+      </div>
+      <div className="usage-meter-track">
+        <div className="usage-meter-fill" style={{ width: `${width}%` }} />
+      </div>
+      <div className="usage-meter-reset">resets in {formatResetsAt(resetsAt ?? null)}</div>
+    </div>
+  );
 }
 
 interface StatsPanelProps {
@@ -32,6 +58,7 @@ export function StatsPanel({ data, onClose, onOpenSettings }: StatsPanelProps) {
   const [adminSummary, setAdminSummary] = useState<unknown>(null);
   const [adminError, setAdminError] = useState<string | null>(null);
   const [hasAdminKey, setHasAdminKey] = useState(false);
+  const [detailsOpen, setDetailsOpen] = useState(false);
 
   useEffect(() => {
     invoke<AppSettings>("get_settings").then((s) => {
@@ -40,13 +67,15 @@ export function StatsPanel({ data, onClose, onOpenSettings }: StatsPanelProps) {
   }, []);
 
   useEffect(() => {
-    if (!hasAdminKey) return;
+    if (!hasAdminKey || !detailsOpen) return;
     invoke("get_admin_usage")
       .then((res) => setAdminSummary(res))
       .catch((err) => setAdminError(String(err)));
-  }, [hasAdminKey]);
+  }, [hasAdminKey, detailsOpen]);
 
   const { usage, usageError, local } = data;
+  const weeklyPct = usage?.seven_day?.utilization ?? null;
+  const weeklyIsPrimary = weeklyPct !== null && weeklyPct >= 50;
 
   return (
     <div className="stats-panel">
@@ -58,51 +87,63 @@ export function StatsPanel({ data, onClose, onOpenSettings }: StatsPanelProps) {
         </div>
       </div>
 
-      {usageError && !usage && (
-        <div className="stats-error">Usage unavailable: {usageError}</div>
-      )}
+      {usageError && !usage && <div className="stats-error">Usage unavailable: {usageError}</div>}
 
       {usage && (
-        <div className="stats-section">
-          <div className="stats-row">
-            <span>5-hour window</span>
-            <span>{formatPercent(usage.five_hour?.utilization)}</span>
-          </div>
-          <div className="stats-subrow">resets in {formatResetsAt(usage.five_hour?.resets_at ?? null)}</div>
-
-          <div className="stats-row">
-            <span>Weekly</span>
-            <span>{formatPercent(usage.seven_day?.utilization)}</span>
-          </div>
-          <div className="stats-subrow">resets in {formatResetsAt(usage.seven_day?.resets_at ?? null)}</div>
+        <div className="usage-primary">
+          <UsageMeter
+            label="5-hour window"
+            pct={usage.five_hour?.utilization}
+            resetsAt={usage.five_hour?.resets_at}
+            size="lg"
+          />
+          {weeklyIsPrimary && (
+            <UsageMeter label="Weekly" pct={weeklyPct} resetsAt={usage.seven_day?.resets_at} size="lg" />
+          )}
         </div>
       )}
 
-      <div className="stats-section">
-        <div className="stats-row">
-          <span>Today's messages</span>
-          <span>{local.message_count}</span>
+      {usage && !weeklyIsPrimary && (
+        <div className="usage-inline">
+          <span>Weekly</span>
+          <span className="usage-inline-pct">{weeklyPct === null ? "—" : `${Math.round(weeklyPct)}%`}</span>
+          <span className="usage-inline-reset">resets in {formatResetsAt(usage.seven_day?.resets_at ?? null)}</span>
         </div>
-        <div className="stats-row">
-          <span>Today's tokens</span>
-          <span>{(local.input_tokens + local.output_tokens).toLocaleString()}</span>
-        </div>
-        <div className="stats-row">
-          <span>Sessions today</span>
-          <span>{local.session_count_today}</span>
-        </div>
-      </div>
+      )}
 
-      {hasAdminKey && (
-        <div className="stats-section">
-          <div className="stats-row">
-            <span>Org cost (Admin API)</span>
+      <button className="details-toggle" onClick={() => setDetailsOpen((v) => !v)}>
+        {detailsOpen ? "Hide details ▲" : "Show details ▼"}
+      </button>
+
+      {detailsOpen && (
+        <>
+          <div className="stats-section">
+            <div className="stats-row">
+              <span>Today's messages</span>
+              <span>{local.message_count}</span>
+            </div>
+            <div className="stats-row">
+              <span>Today's tokens</span>
+              <span>{(local.input_tokens + local.output_tokens).toLocaleString()}</span>
+            </div>
+            <div className="stats-row">
+              <span>Sessions today</span>
+              <span>{local.session_count_today}</span>
+            </div>
           </div>
-          {adminError && <div className="stats-error">{adminError}</div>}
-          {!adminError && adminSummary ? (
-            <pre className="stats-raw">{JSON.stringify(adminSummary, null, 2).slice(0, 400)}</pre>
-          ) : null}
-        </div>
+
+          {hasAdminKey && (
+            <div className="stats-section">
+              <div className="stats-row">
+                <span>Org cost (Admin API)</span>
+              </div>
+              {adminError && <div className="stats-error">{adminError}</div>}
+              {!adminError && adminSummary ? (
+                <pre className="stats-raw">{JSON.stringify(adminSummary, null, 2).slice(0, 400)}</pre>
+              ) : null}
+            </div>
+          )}
+        </>
       )}
     </div>
   );
