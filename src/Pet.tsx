@@ -1,4 +1,4 @@
-import pandaSprite from "./assets/pet/panda.png";
+import penguinSprite from "./assets/pet/penguin.png";
 import type { Mood } from "./types";
 
 interface PetProps {
@@ -15,7 +15,7 @@ export function Pet({ mood, onClick, onMouseDown }: PetProps) {
       onMouseDown={onMouseDown}
       title="Click for usage details"
     >
-      <img src={pandaSprite} alt="pet" className="pet-sprite" draggable={false} />
+      <img src={penguinSprite} alt="pet" className="pet-sprite" draggable={false} />
       <span className="pet-mood-dot" />
     </div>
   );

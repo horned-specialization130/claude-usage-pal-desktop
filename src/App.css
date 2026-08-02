@@ -24,6 +24,7 @@ body {
 /* --- Pet --- */
 
 .pet {
+  --mood-color: #9aa0a6;
   position: relative;
   width: var(--pet-size);
   height: var(--pet-size);
@@ -35,11 +36,27 @@ body {
   justify-content: center;
 }
 
+/* Explicit colored halo behind the sprite so mood stays legible regardless
+   of the sprite's own artwork colors (a drop-shadow glow can wash out against
+   similarly-colored/dark sprites). */
+.pet::before {
+  content: "";
+  position: absolute;
+  inset: -22%;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--mood-color) 0%, transparent 72%);
+  opacity: 0.8;
+  z-index: 0;
+  transition: background-color 0.6s ease, opacity 0.6s ease;
+}
+
 .pet-sprite {
+  position: relative;
+  z-index: 1;
   width: calc(var(--pet-size) - 4px);
   height: calc(var(--pet-size) - 4px);
   object-fit: contain;
-  filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.3)) drop-shadow(0 0 0 transparent);
+  filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.35));
   transition: filter 0.6s ease, transform 0.6s ease;
   animation: bob 2.4s ease-in-out infinite;
 }
@@ -56,6 +73,7 @@ body {
 
 .pet-mood-dot {
   position: absolute;
+  z-index: 2;
   bottom: 0;
   right: 1px;
   width: clamp(7px, calc(var(--pet-size) * 0.22), 14px);
@@ -66,24 +84,28 @@ body {
   transition: background-color 0.6s ease;
 }
 
-.pet-happy .pet-sprite {
-  filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.3)) drop-shadow(0 0 10px rgba(127, 216, 143, 0.55));
+.pet-happy {
+  --mood-color: #7fd88f;
 }
 .pet-happy .pet-mood-dot {
   background-color: #7fd88f;
 }
 
+.pet-alert {
+  --mood-color: #f2c94c;
+}
 .pet-alert .pet-sprite {
-  filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.3)) drop-shadow(0 0 10px rgba(242, 201, 76, 0.6));
   animation-duration: 1.6s;
 }
 .pet-alert .pet-mood-dot {
   background-color: #f2c94c;
 }
 
+.pet-tired {
+  --mood-color: #eb6a5c;
+}
 .pet-tired .pet-sprite {
-  filter: grayscale(35%) brightness(0.92) drop-shadow(0 3px 6px rgba(0, 0, 0, 0.3))
-    drop-shadow(0 0 10px rgba(235, 106, 92, 0.55));
+  filter: grayscale(35%) brightness(0.92) drop-shadow(0 3px 6px rgba(0, 0, 0, 0.35));
   animation-duration: 4.2s;
   transform: rotate(-3deg);
 }
@@ -91,6 +113,9 @@ body {
   background-color: #eb6a5c;
 }
 
+.pet-unavailable {
+  --mood-color: #9aa0a6;
+}
 .pet-unavailable .pet-sprite {
   filter: grayscale(100%) brightness(0.85);
   animation: none;
