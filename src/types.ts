@@ -38,6 +38,7 @@ export interface AppSettings {
   poll_interval_secs: number;
   admin_api_key: string | null;
   pet_size_px: number;
+  shy_mode_enabled: boolean;
 }
 
 export type Mood = "happy" | "alert" | "tired" | "unavailable";

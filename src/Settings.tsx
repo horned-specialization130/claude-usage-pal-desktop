@@ -11,6 +11,7 @@ const DEFAULT_SETTINGS: AppSettings = {
   poll_interval_secs: 60,
   admin_api_key: null,
   pet_size_px: 40,
+  shy_mode_enabled: true,
 };
 
 export function Settings({ onClose, onPetSizeChange }: SettingsProps) {
@@ -52,6 +53,15 @@ export function Settings({ onClose, onPetSizeChange }: SettingsProps) {
             onPetSizeChange(size);
           }}
         />
+      </label>
+
+      <label className="settings-field settings-field-checkbox">
+        <input
+          type="checkbox"
+          checked={settings.shy_mode_enabled}
+          onChange={(e) => setSettings((s) => ({ ...s, shy_mode_enabled: e.target.checked }))}
+        />
+        Shy mode (dodge the cursor unless Shift is held)
       </label>
 
       <label className="settings-field">

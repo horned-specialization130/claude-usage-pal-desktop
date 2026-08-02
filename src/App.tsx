@@ -30,6 +30,7 @@ function App() {
     const width = view === "closed" ? petSize + CLOSED_WINDOW_MARGIN : OPEN_WINDOW_WIDTH;
     const height = view === "closed" ? petSize + CLOSED_WINDOW_MARGIN : OPEN_WINDOW_HEIGHT;
     invoke("resize_pet_window", { width, height }).catch(() => {});
+    invoke("set_panel_open", { open: view !== "closed" }).catch(() => {});
   }, [view, petSize]);
 
   useEffect(() => {

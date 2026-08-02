@@ -302,6 +302,19 @@ body {
   font-size: 13px;
 }
 
+.settings-field-checkbox {
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+}
+
+.settings-field-checkbox input[type="checkbox"] {
+  width: auto;
+  padding: 0;
+  border: none;
+  accent-color: #396cd8;
+}
+
 .settings-field input[type="range"] {
   padding: 0;
   border: none;

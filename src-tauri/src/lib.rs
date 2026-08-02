@@ -1,15 +1,18 @@
 mod admin_api;
 mod credentials;
+mod dodge;
 mod local_sessions;
 mod settings;
+mod state;
 mod usage_api;
 
 use settings::Settings;
+use state::AppState;
 use std::time::Duration;
 use tauri::{
     menu::{Menu, MenuItem},
     tray::TrayIconBuilder,
-    Emitter, Manager,
+    Emitter, Manager, State,
 };
 
 async fn fetch_usage_with_retry() -> Result<usage_api::UsageReport, String> {
@@ -38,21 +41,26 @@ fn get_local_usage() -> local_sessions::TodayLocalUsage {
 }
 
 #[tauri::command]
-fn get_settings(app: tauri::AppHandle) -> Settings {
-    settings::load_settings(&app)
+fn get_settings(state: State<AppState>) -> Settings {
+    state.get_settings()
 }
 
 #[tauri::command]
-fn save_settings_cmd(app: tauri::AppHandle, settings: Settings) -> Result<(), String> {
-    settings::save_settings(&app, &settings)
+fn save_settings_cmd(app: tauri::AppHandle, state: State<AppState>, settings: Settings) -> Result<(), String> {
+    state.set_settings(&app, settings)
 }
 
 #[tauri::command]
-fn save_window_position(app: tauri::AppHandle, x: i32, y: i32) -> Result<(), String> {
-    let mut settings = settings::load_settings(&app);
+fn save_window_position(app: tauri::AppHandle, state: State<AppState>, x: i32, y: i32) -> Result<(), String> {
+    let mut settings = state.get_settings();
     settings.window_x = Some(x);
     settings.window_y = Some(y);
-    settings::save_settings(&app, &settings)
+    state.set_settings(&app, settings)
+}
+
+#[tauri::command]
+fn set_panel_open(state: State<AppState>, open: bool) {
+    state.set_panel_open(open);
 }
 
 /// Resizes the pet window to match only the currently visible content
@@ -61,29 +69,59 @@ fn save_window_position(app: tauri::AppHandle, x: i32, y: i32) -> Result<(), Str
 /// visually jump. This matters because a transparent window still
 /// intercepts clicks over its whole rectangle even where nothing is
 /// drawn, so an oversized window blocks whatever is behind it.
+///
+/// `width`/`height` are logical (CSS) pixels, matching how the frontend and
+/// `tauri.conf.json` express sizes — all geometry here is done in logical
+/// pixels (converting the physical reads via the scale factor) so the actual
+/// window always matches what the CSS expects, regardless of display scaling.
 #[tauri::command]
-fn resize_pet_window(app: tauri::AppHandle, width: u32, height: u32) -> Result<(), String> {
+fn resize_pet_window(app: tauri::AppHandle, width: f64, height: f64) -> Result<(), String> {
     let window = app.get_webview_window("pet").ok_or("pet window not found")?;
-    let current_pos = window.outer_position().map_err(|e| e.to_string())?;
-    let current_size = window.outer_size().map_err(|e| e.to_string())?;
+    let scale = window.scale_factor().map_err(|e| e.to_string())?;
 
-    let center_x = current_pos.x as f64 + current_size.width as f64 / 2.0;
-    let bottom_y = current_pos.y as f64 + current_size.height as f64;
-    let new_x = (center_x - width as f64 / 2.0).round() as i32;
-    let new_y = (bottom_y - height as f64).round() as i32;
+    let current_pos = window
+        .outer_position()
+        .map_err(|e| e.to_string())?
+        .to_logical::<f64>(scale);
+    let current_size = window
+        .outer_size()
+        .map_err(|e| e.to_string())?
+        .to_logical::<f64>(scale);
+
+    let center_x = current_pos.x + current_size.width / 2.0;
+    let bottom_y = current_pos.y + current_size.height;
+    let mut new_x = center_x - width / 2.0;
+    let mut new_y = bottom_y - height;
+
+    // Clamp to the monitor's work area so growing the window (e.g. opening the
+    // stats panel while the pet has fled near a screen edge) can't push it
+    // partly off-screen, which would clip the panel.
+    if let Ok(Some(monitor)) = window.current_monitor() {
+        let mscale = monitor.scale_factor();
+        let mpos = monitor.position().to_logical::<f64>(mscale);
+        let msize = monitor.size().to_logical::<f64>(mscale);
+        let max_x = mpos.x + msize.width - width;
+        let max_y = mpos.y + msize.height - height;
+        if mpos.x <= max_x {
+            new_x = new_x.clamp(mpos.x, max_x);
+        }
+        if mpos.y <= max_y {
+            new_y = new_y.clamp(mpos.y, max_y);
+        }
+    }
 
     window
-        .set_size(tauri::Size::Physical(tauri::PhysicalSize { width, height }))
+        .set_size(tauri::Size::Logical(tauri::LogicalSize { width, height }))
         .map_err(|e| e.to_string())?;
     window
-        .set_position(tauri::Position::Physical(tauri::PhysicalPosition { x: new_x, y: new_y }))
+        .set_position(tauri::Position::Logical(tauri::LogicalPosition { x: new_x, y: new_y }))
         .map_err(|e| e.to_string())?;
     Ok(())
 }
 
 #[tauri::command]
 async fn get_admin_usage(app: tauri::AppHandle) -> Result<admin_api::AdminUsageSummary, String> {
-    let settings = settings::load_settings(&app);
+    let settings = app.state::<AppState>().get_settings();
     let key = settings
         .admin_api_key
         .filter(|k| !k.is_empty())
@@ -101,11 +139,14 @@ pub fn run() {
             get_settings,
             save_settings_cmd,
             save_window_position,
+            set_panel_open,
             resize_pet_window,
             get_admin_usage
         ])
         .setup(|app| {
-            let saved = settings::load_settings(&app.handle());
+            app.manage(AppState::load(&app.handle()));
+            let app_state = app.state::<AppState>();
+            let saved = app_state.get_settings();
             if let (Some(x), Some(y)) = (saved.window_x, saved.window_y) {
                 if let Some(window) = app.get_webview_window("pet") {
                     let _ = window.set_position(tauri::Position::Physical(tauri::PhysicalPosition {
@@ -134,10 +175,10 @@ pub fn run() {
                 })
                 .build(app)?;
 
-            let app_handle = app.handle().clone();
+            let usage_app_handle = app.handle().clone();
             tauri::async_runtime::spawn(async move {
                 loop {
-                    let poll_settings = settings::load_settings(&app_handle);
+                    let poll_settings = usage_app_handle.state::<AppState>().get_settings();
 
                     let (usage, usage_error) = match fetch_usage_with_retry().await {
                         Ok(u) => (Some(u), None),
@@ -145,7 +186,7 @@ pub fn run() {
                     };
                     let local = local_sessions::today_local_usage();
 
-                    let _ = app_handle.emit(
+                    let _ = usage_app_handle.emit(
                         "usage-updated",
                         serde_json::json!({
                             "usage": usage,
@@ -158,6 +199,9 @@ pub fn run() {
                         .await;
                 }
             });
+
+            let dodge_app_handle = app.handle().clone();
+            tauri::async_runtime::spawn(dodge::run(dodge_app_handle));
 
             Ok(())
         })

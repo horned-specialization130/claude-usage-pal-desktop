@@ -6,6 +6,10 @@ fn default_pet_size_px() -> u32 {
     40
 }
 
+fn default_shy_mode_enabled() -> bool {
+    true
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Settings {
     pub poll_interval_secs: u64,
@@ -14,6 +18,8 @@ pub struct Settings {
     pub window_y: Option<i32>,
     #[serde(default = "default_pet_size_px")]
     pub pet_size_px: u32,
+    #[serde(default = "default_shy_mode_enabled")]
+    pub shy_mode_enabled: bool,
 }
 
 impl Default for Settings {
@@ -24,6 +30,7 @@ impl Default for Settings {
             window_x: None,
             window_y: None,
             pet_size_px: default_pet_size_px(),
+            shy_mode_enabled: default_shy_mode_enabled(),
         }
     }
 }
