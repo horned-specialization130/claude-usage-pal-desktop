@@ -4,6 +4,9 @@ use std::time::{Duration, Instant};
 use tauri::{Manager, PhysicalPosition, Position};
 
 const TICK_MS: u64 = 40;
+// Used whenever dodging can't trigger anyway (shy mode off or a panel open),
+// so the global input poll doesn't run at full rate for no reason.
+const IDLE_TICK_MS: u64 = 150;
 const COOLDOWN_MS: u64 = 350;
 const FLEE_DISTANCE: f64 = 150.0;
 // How much past the sprite's edge counts as "close range" before it flees.
@@ -21,9 +24,15 @@ pub async fn run(app_handle: tauri::AppHandle) {
     let mut last_dodge = Instant::now() - Duration::from_millis(COOLDOWN_MS);
 
     loop {
-        tokio::time::sleep(Duration::from_millis(TICK_MS)).await;
-
         let state = app_handle.state::<AppState>();
+        let panel_open = state.is_panel_open();
+        let shy_mode_enabled = state.get_settings().shy_mode_enabled;
+        let tick = if panel_open || !shy_mode_enabled {
+            IDLE_TICK_MS
+        } else {
+            TICK_MS
+        };
+        tokio::time::sleep(Duration::from_millis(tick)).await;
 
         // Published unconditionally (not just when shy mode/dodging is active)
         // so the frontend can gate Shift-only UI, like the hover tooltip, via
@@ -33,11 +42,7 @@ pub async fn run(app_handle: tauri::AppHandle) {
         let shift_held = keys.contains(&Keycode::LShift) || keys.contains(&Keycode::RShift);
         state.set_shift_held(shift_held);
 
-        if state.is_panel_open() {
-            continue;
-        }
-        let settings = state.get_settings();
-        if !settings.shy_mode_enabled {
+        if panel_open || !shy_mode_enabled {
             continue;
         }
         if last_dodge.elapsed() < Duration::from_millis(COOLDOWN_MS) {
