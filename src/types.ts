@@ -37,6 +37,7 @@ export interface UsageUpdatedPayload {
 export interface AppSettings {
   poll_interval_secs: number;
   admin_api_key: string | null;
+  pet_size_px: number;
 }
 
 export type Mood = "happy" | "alert" | "tired" | "unavailable";

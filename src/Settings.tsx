@@ -4,17 +4,25 @@ import type { AppSettings } from "./types";
 
 interface SettingsProps {
   onClose: () => void;
+  onPetSizeChange: (sizePx: number) => void;
 }
 
-export function Settings({ onClose }: SettingsProps) {
-  const [settings, setSettings] = useState<AppSettings>({
-    poll_interval_secs: 60,
-    admin_api_key: null,
-  });
+const DEFAULT_SETTINGS: AppSettings = {
+  poll_interval_secs: 60,
+  admin_api_key: null,
+  pet_size_px: 40,
+};
+
+export function Settings({ onClose, onPetSizeChange }: SettingsProps) {
+  const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
-    invoke<AppSettings>("get_settings").then(setSettings);
+    invoke<AppSettings>("get_settings").then((s) => {
+      setSettings(s);
+      onPetSizeChange(s.pet_size_px);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function save() {
@@ -29,6 +37,22 @@ export function Settings({ onClose }: SettingsProps) {
         <span>Settings</span>
         <button onClick={onClose}>×</button>
       </div>
+
+      <label className="settings-field">
+        Pet size ({settings.pet_size_px}px)
+        <input
+          type="range"
+          min={20}
+          max={96}
+          step={2}
+          value={settings.pet_size_px}
+          onChange={(e) => {
+            const size = Number(e.target.value);
+            setSettings((s) => ({ ...s, pet_size_px: size }));
+            onPetSizeChange(size);
+          }}
+        />
+      </label>
 
       <label className="settings-field">
         Poll interval (seconds)

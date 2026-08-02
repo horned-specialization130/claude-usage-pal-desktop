@@ -2,12 +2,18 @@ use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 use tauri::Manager;
 
+fn default_pet_size_px() -> u32 {
+    40
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Settings {
     pub poll_interval_secs: u64,
     pub admin_api_key: Option<String>,
     pub window_x: Option<i32>,
     pub window_y: Option<i32>,
+    #[serde(default = "default_pet_size_px")]
+    pub pet_size_px: u32,
 }
 
 impl Default for Settings {
@@ -17,6 +23,7 @@ impl Default for Settings {
             admin_api_key: None,
             window_x: None,
             window_y: None,
+            pet_size_px: default_pet_size_px(),
         }
     }
 }

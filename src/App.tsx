@@ -5,6 +5,7 @@ import { Pet } from "./Pet";
 import { StatsPanel } from "./StatsPanel";
 import { Settings } from "./Settings";
 import { useUsage } from "./useUsage";
+import type { AppSettings } from "./types";
 import "./App.css";
 
 type View = "closed" | "stats" | "settings";
@@ -12,6 +13,11 @@ type View = "closed" | "stats" | "settings";
 function App() {
   const usage = useUsage();
   const [view, setView] = useState<View>("closed");
+  const [petSize, setPetSize] = useState(40);
+
+  useEffect(() => {
+    invoke<AppSettings>("get_settings").then((s) => setPetSize(s.pet_size_px));
+  }, []);
 
   useEffect(() => {
     let unlisten: (() => void) | undefined;
@@ -52,7 +58,7 @@ function App() {
   }
 
   return (
-    <div className="app-root">
+    <div className="app-root" style={{ ["--pet-size" as string]: `${petSize}px` }}>
       <Pet
         mood={usage.mood}
         onClick={() => setView((v) => (v === "stats" ? "closed" : "stats"))}
@@ -65,7 +71,7 @@ function App() {
           onOpenSettings={() => setView("settings")}
         />
       )}
-      {view === "settings" && <Settings onClose={() => setView("closed")} />}
+      {view === "settings" && <Settings onClose={() => setView("closed")} onPetSizeChange={setPetSize} />}
     </div>
   );
 }
