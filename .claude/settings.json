@@ -14,7 +14,13 @@
       "PowerShell(winget install --id Microsoft.VisualStudio.2022.BuildTools -e --accept-source-agreements --accept-package-agreements --override \"--wait --passive --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended\")",
       "PowerShell(Get-Process -Name \"ai-pet-usage\" -ErrorAction SilentlyContinue)",
       "PowerShell(Get-NetTCPConnection -LocalPort 1420 -ErrorAction SilentlyContinue)",
-      "Bash(grep -E --line-buffered \"error\\\\[|error:|Finished|already in use|Running \\\\`target\")"
+      "Bash(grep -E --line-buffered \"error\\\\[|error:|Finished|already in use|Running \\\\`target\")",
+      "Bash(git commit -m ' *)",
+      "Bash(xargs -0 du -b)",
+      "Bash(git rm *)",
+      "Bash(cargo check *)",
+      "Bash(git remote *)",
+      "Bash(xargs -0 grep -nIE \"\\(api[_-]?key|secret|token|password|bearer|sk-ant|sk-[a-zA-Z0-9]{10,}|AKIA[0-9A-Z]{16}|-----BEGIN\\)\" --)"
     ]
   }
 }
