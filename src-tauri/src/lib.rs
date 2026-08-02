@@ -55,6 +55,32 @@ fn save_window_position(app: tauri::AppHandle, x: i32, y: i32) -> Result<(), Str
     settings::save_settings(&app, &settings)
 }
 
+/// Resizes the pet window to match only the currently visible content
+/// (small when idle, bigger while the stats/settings panel is open),
+/// keeping the window's bottom-center point fixed so the pet doesn't
+/// visually jump. This matters because a transparent window still
+/// intercepts clicks over its whole rectangle even where nothing is
+/// drawn, so an oversized window blocks whatever is behind it.
+#[tauri::command]
+fn resize_pet_window(app: tauri::AppHandle, width: u32, height: u32) -> Result<(), String> {
+    let window = app.get_webview_window("pet").ok_or("pet window not found")?;
+    let current_pos = window.outer_position().map_err(|e| e.to_string())?;
+    let current_size = window.outer_size().map_err(|e| e.to_string())?;
+
+    let center_x = current_pos.x as f64 + current_size.width as f64 / 2.0;
+    let bottom_y = current_pos.y as f64 + current_size.height as f64;
+    let new_x = (center_x - width as f64 / 2.0).round() as i32;
+    let new_y = (bottom_y - height as f64).round() as i32;
+
+    window
+        .set_size(tauri::Size::Physical(tauri::PhysicalSize { width, height }))
+        .map_err(|e| e.to_string())?;
+    window
+        .set_position(tauri::Position::Physical(tauri::PhysicalPosition { x: new_x, y: new_y }))
+        .map_err(|e| e.to_string())?;
+    Ok(())
+}
+
 #[tauri::command]
 async fn get_admin_usage(app: tauri::AppHandle) -> Result<admin_api::AdminUsageSummary, String> {
     let settings = settings::load_settings(&app);
@@ -75,6 +101,7 @@ pub fn run() {
             get_settings,
             save_settings_cmd,
             save_window_position,
+            resize_pet_window,
             get_admin_usage
         ])
         .setup(|app| {

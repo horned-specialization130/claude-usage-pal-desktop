@@ -10,6 +10,11 @@ import "./App.css";
 
 type View = "closed" | "stats" | "settings";
 
+// Extra room around the sprite for its drop-shadow/glow filters and click hit area.
+const CLOSED_WINDOW_MARGIN = 40;
+const OPEN_WINDOW_WIDTH = 260;
+const OPEN_WINDOW_HEIGHT = 460;
+
 function App() {
   const usage = useUsage();
   const [view, setView] = useState<View>("closed");
@@ -18,6 +23,14 @@ function App() {
   useEffect(() => {
     invoke<AppSettings>("get_settings").then((s) => setPetSize(s.pet_size_px));
   }, []);
+
+  useEffect(() => {
+    // The window is transparent but still intercepts clicks over its whole
+    // rectangle, so keep it sized to only what's actually visible right now.
+    const width = view === "closed" ? petSize + CLOSED_WINDOW_MARGIN : OPEN_WINDOW_WIDTH;
+    const height = view === "closed" ? petSize + CLOSED_WINDOW_MARGIN : OPEN_WINDOW_HEIGHT;
+    invoke("resize_pet_window", { width, height }).catch(() => {});
+  }, [view, petSize]);
 
   useEffect(() => {
     let unlisten: (() => void) | undefined;
