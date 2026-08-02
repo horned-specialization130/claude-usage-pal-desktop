@@ -10,6 +10,10 @@ fn default_shy_mode_enabled() -> bool {
     true
 }
 
+fn default_has_interacted_with_shift() -> bool {
+    false
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Settings {
     pub poll_interval_secs: u64,
@@ -20,6 +24,8 @@ pub struct Settings {
     pub pet_size_px: u32,
     #[serde(default = "default_shy_mode_enabled")]
     pub shy_mode_enabled: bool,
+    #[serde(default = "default_has_interacted_with_shift")]
+    pub has_interacted_with_shift: bool,
 }
 
 impl Default for Settings {
@@ -31,6 +37,7 @@ impl Default for Settings {
             window_y: None,
             pet_size_px: default_pet_size_px(),
             shy_mode_enabled: default_shy_mode_enabled(),
+            has_interacted_with_shift: false,
         }
     }
 }

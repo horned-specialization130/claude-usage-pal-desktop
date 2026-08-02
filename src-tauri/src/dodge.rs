@@ -1,7 +1,7 @@
 use crate::state::AppState;
 use device_query::{DeviceQuery, DeviceState, Keycode};
 use std::time::{Duration, Instant};
-use tauri::{Manager, PhysicalPosition, Position};
+use tauri::{Emitter, Manager, PhysicalPosition, Position};
 
 const TICK_MS: u64 = 40;
 // Used whenever dodging can't trigger anyway (shy mode off or a panel open),
@@ -108,6 +108,11 @@ pub async fn run(app_handle: tauri::AppHandle) {
         let start_y = pos.y as f64;
         let target_x = new_cx - size.width as f64 / 2.0;
         let target_y = new_cy - size.height as f64 / 2.0;
+
+        let settings = state.get_settings();
+        if !settings.has_interacted_with_shift {
+            let _ = app_handle.emit("pet-dodged", ());
+        }
 
         glide_to(&window, start_x, start_y, target_x, target_y).await;
         last_dodge = Instant::now();

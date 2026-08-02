@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { invoke } from "@tauri-apps/api/core";
+import { listen } from "@tauri-apps/api/event";
 import { Pet } from "./Pet";
 import { StatsPanel } from "./StatsPanel";
 import { Settings } from "./Settings";
@@ -27,10 +28,43 @@ function App() {
   const [petSize, setPetSize] = useState(40);
   const [hovering, setHovering] = useState(false);
   const [shiftHeld, setShiftHeld] = useState(false);
+  const [showFleeHint, setShowFleeHint] = useState(false);
 
   useEffect(() => {
     invoke<AppSettings>("get_settings").then((s) => setPetSize(s.pet_size_px));
   }, []);
+
+  useEffect(() => {
+    let unlisten: (() => void) | undefined;
+    listen("pet-dodged", () => {
+      setShowFleeHint(true);
+    }).then((fn) => {
+      unlisten = fn;
+    });
+    return () => unlisten?.();
+  }, []);
+
+  useEffect(() => {
+    if (showFleeHint) {
+      const timer = setTimeout(() => setShowFleeHint(false), 2500);
+      return () => clearTimeout(timer);
+    }
+  }, [showFleeHint]);
+
+  useEffect(() => {
+    if (shiftHeld) {
+      setShowFleeHint(false);
+      if (hovering) {
+        invoke<AppSettings>("get_settings").then((s) => {
+          if (!s.has_interacted_with_shift) {
+            invoke("save_settings_cmd", {
+              settings: { ...s, has_interacted_with_shift: true },
+            }).catch(() => {});
+          }
+        });
+      }
+    }
+  }, [shiftHeld, hovering]);
 
   useEffect(() => {
     // The window rarely has OS keyboard focus, so Shift state can't be read
@@ -57,21 +91,22 @@ function App() {
   }, [hovering]);
 
   const showTooltip = view === "closed" && hovering && shiftHeld;
+  const expandWindow = showTooltip || showFleeHint;
 
   useEffect(() => {
     // The window is transparent but still intercepts clicks over its whole
     // rectangle, so keep it sized to only what's actually visible right now.
     const width =
-      view !== "closed" ? OPEN_WINDOW_WIDTH : showTooltip ? HOVER_WINDOW_WIDTH : petSize + CLOSED_WINDOW_MARGIN;
+      view !== "closed" ? OPEN_WINDOW_WIDTH : expandWindow ? HOVER_WINDOW_WIDTH : petSize + CLOSED_WINDOW_MARGIN;
     const height =
       view !== "closed"
         ? OPEN_WINDOW_HEIGHT
-        : showTooltip
+        : expandWindow
           ? petSize + HOVER_WINDOW_EXTRA_HEIGHT
           : petSize + CLOSED_WINDOW_MARGIN;
     invoke("resize_pet_window", { width, height }).catch(() => {});
     invoke("set_panel_open", { open: view !== "closed" }).catch(() => {});
-  }, [view, petSize, showTooltip]);
+  }, [view, petSize, expandWindow]);
 
   useEffect(() => {
     let unlisten: (() => void) | undefined;
@@ -136,6 +171,11 @@ function App() {
           ) : (
             <div className="pet-tooltip-row pet-tooltip-error">Usage unavailable</div>
           )}
+        </div>
+      )}
+      {showFleeHint && !showTooltip && view === "closed" && (
+        <div className="pet-flee-hint">
+          Hold <kbd>SHIFT</kbd> to catch me! 💨
         </div>
       )}
       {view === "stats" && (

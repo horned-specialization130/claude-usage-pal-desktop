@@ -39,6 +39,7 @@ export interface AppSettings {
   admin_api_key: string | null;
   pet_size_px: number;
   shy_mode_enabled: boolean;
+  has_interacted_with_shift: boolean;
 }
 
 export type Mood = "happy" | "alert" | "tired" | "unavailable";

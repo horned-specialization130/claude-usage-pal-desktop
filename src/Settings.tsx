@@ -12,6 +12,7 @@ const DEFAULT_SETTINGS: AppSettings = {
   admin_api_key: null,
   pet_size_px: 40,
   shy_mode_enabled: true,
+  has_interacted_with_shift: false,
 };
 
 export function Settings({ onClose, onPetSizeChange }: SettingsProps) {
