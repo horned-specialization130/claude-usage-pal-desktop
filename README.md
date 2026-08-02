@@ -2,7 +2,12 @@
 
 A desktop pet application built with **Tauri**, **React**, **TypeScript**, and **Vite**.
 
+<p center>
+  <img src="docs/assets/screenshot.jpg" alt="AI Pet Usage App Preview" width="100%" />
+</p>
+
 ---
+
 
 ## 🚀 Installation
 
