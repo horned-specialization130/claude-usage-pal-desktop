@@ -1,12 +1,28 @@
-# 🐾 AI Pet Usage Desktop App
+# 🐾 Claude Usage Pal — Desktop Pet & Claude AI Rate-Limit Tracker
 
-A lightweight desktop pet application that floats on your screen to monitor your Claude AI API usage in real-time. Built with **Tauri**, **React**, **TypeScript**, and **Vite**.
+[![GitHub Release](https://img.shields.io/github/v/release/chanyutl-dev01/claude-usage-pal-desktop?color=blue&label=release)](https://github.com/chanyutl-dev01/claude-usage-pal-desktop/releases/latest)
+[![Built with Tauri](https://img.shields.io/badge/Built_with-Tauri_v2-blue?logo=tauri)](https://tauri.app)
+[![License](https://img.shields.io/github/license/chanyutl-dev01/claude-usage-pal-desktop)](LICENSE)
+[![Platform](https://img.shields.io/badge/platform-Windows-blue)](https://github.com/chanyutl-dev01/claude-usage-pal-desktop/releases)
+
+A lightweight floating desktop pet companion and real-time rate-limit monitor for **Claude AI** & **Claude Code**. Built with **Tauri v2**, **React**, **TypeScript**, and **Vite**.
 
 <p align="center">
   <img src="docs/assets/ss2.png" alt="Claude Usage Details" width="80%" />
 </p>
 
 ---
+
+## ✨ Features
+
+- 🐧 **Floating Desktop Pet Mascot**: A transparent desktop companion that floats above your active windows while you code.
+- ⚡ **Real-Time Rate-Limit Monitoring**: Tracks your **5-hour window** usage and **weekly reset** limits at a glance.
+- 🙈 **Shy Mode**: Interactive pet behavior that dodges your mouse cursor unless the `Shift` key is held.
+- 🪶 **Ultra Lightweight**: Minimal RAM footprint (~35MB) thanks to Tauri v2.
+- 🛠️ **Customizable**: Adjustable pet scaling, customizable polling intervals, and transparent overlay controls.
+
+---
+
 
 ## 📸 Screenshots
 
